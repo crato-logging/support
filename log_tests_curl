@@ -1,0 +1,13 @@
+#!/bin/bash
+
+requests=$1
+
+
+echo "Initiating $1 rounds of logging tests"
+
+while [ $requests -gt 0 ]; do
+  curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" http://kurthoconnor.com{/,/about,/projects,/blog} &>> /dev/null
+  requests=$[ $requests - 1 ]
+done
+
+echo "$1 requests placed"
