@@ -1,28 +1,28 @@
-var kafka = require('kafka-node');
-var Consumer = kafka.Consumer;
-var client = new kafka.KafkaClient( {kafkaHost: 'localhost:9092' });
+const kafka = require('kafka-node');
+const Consumer = kafka.Consumer;
+const client = new kafka.KafkaClient( {kafkaHost: 'localhost:9092' });
 
-var topics = [ { topic: 'jsonlogs' } ];
-var options = {
-	autoCommit: true,
-	fetchMaxWaitMs: 1000,
-	fetchMaxBytes: 1024 * 1024,
-	encoding: 'utf8',
+const fetchReqPayload = [
+  {
+    topic: 'jsonlogs',
+    offset: 0,
+    partition: 0,
+  }
+];
+
+const options = {
+  autoCommit: true,
+  autoCommitIntervalMs: 5000,
+  fetchMaxWaitMs: 100,
+  fetchMinBytes: 1,
+  fetchMaxBytes: 1024 * 1024,
+  encoding: 'utf8',
 };
 
-var consumer = new Consumer(client, topics, options);
+const consumer = new Consumer(client, fetchReqPayload, options);
 
-consumer.on('message', function(message) {
-	console.log(message);
+consumer.on('message', message => console.log(message));
+consumer.on('error', err => console.log('error', err));
+process.on('SIGINT', () => {
+  consumer.close(true, () => process.exit());
 });
-
-consumer.on('error', function(err) {
-	console.log('error', err);
-});
-
-process.on('SIGINT', function() {
-	consumer.close(true, function() {
-		process.exit();
-	});
-});
-
