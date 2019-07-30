@@ -2,8 +2,7 @@ const kafka = require("kafka-node");
 const Consumer = kafka.Consumer;
 const client = new kafka.KafkaClient({ kafkaHost: "35.183.71.251:9092" });
 const aws = require("aws-sdk");
-const multer = require("multer");
-const multerS3 = require("multer-s3");
+
 const config = require("./config.js");
 
 const fs = require("fs");
@@ -36,24 +35,26 @@ const consumer = new Consumer(client, fetchReqPayload, options);
 
 let size = 0;
 let max = 50;
+let fileNum = 1;
 
 consumer.on("message", message => {
   console.log(message);
   console.log(size);
   const jsonString = JSON.stringify(message);
 
-  fs.appendFile("./log_data.json", jsonString + "\n", err => {
+  fs.appendFile(`./log_data_${fileNum}.json`, jsonString + "\n", err => {
     if (err) {
       console.log("Error writing file", err);
     } else {
       console.log("Success");
+      size += 1;
+      if (size >= max) {
+        sendToS3(fileNum);
+        size = 0;
+        fileNum += 1;
+      }
     }
   });
-  size += 1;
-
-  if (size >= 50) {
-    sendToS3();
-  }
 });
 
 consumer.on("error", err => console.log("error", err));
@@ -63,15 +64,13 @@ process.on("SIGINT", () => {
 
 // =========
 
-const sendToS3 = () => {
-  fs.readFile("log_data.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    }
+const sendToS3 = fileNum => {
+  fs.readFile(`log_data_${fileNum}.json`, (err, data) => {
+    if (err) throw err;
 
     const params = {
       Bucket: "node-to-s3-test",
-      Key: "logs.json", //Date.now().toString() + "_logs.json",
+      Key: Date.now().toString() + "_logs.json",
       Body: JSON.stringify(data, null, "\n")
     };
 
