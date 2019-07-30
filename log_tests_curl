@@ -1,10 +1,16 @@
 #!/bin/bash
 
+# to execute: `log_tests_curl <number of tests> <path to file of urls>
+
 requests=$1
+urlfile=$2
+
 echo "Initiating $1 rounds of logging tests"
 
 while [ $requests -gt 0 ]; do
-  curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" http://kurthoconnor.com{/,/about,/projects,/blog} >> /dev/null
+  for url in $(cat $urlfile); do
+    curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" ${url} >> /dev/null
+  done
   requests=$[ $requests - 1 ]
 done
 
