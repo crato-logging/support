@@ -1,6 +1,6 @@
 ![Crato Banner](https://i.imgur.com/cfeEUFu.png)
 
-<h1 align="center">Welcome to Crato 👋</h1>
+<h1 align="center">Welcome to Crato Support👋</h1>
 
 ![crato](https://img.shields.io/badge/Crato-%F0%9F%93%A6-1e4470?style=plastic) 
 ![version](https://img.shields.io/badge/version-0.7.0-1e4470?style=plastic) 
